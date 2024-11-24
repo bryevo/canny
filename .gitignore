@@ -60,3 +60,53 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript build files
+*.js
+*.js.map
+*.d.ts
+
+# Build output directories
+dist/
+build/
+
+# Environment variables
+.env
+
+# Coverage directory used by tools like Jest or Istanbul
+coverage/
+
+# Temporary files
+.DS_Store
+Thumbs.db
+
+# Editor-specific files and directories
+.vscode/
+.idea/
+
+# Package lock files (optional, depending on your team's workflow)
+package-lock.json
+yarn.lock
+
+# Other system files
+*.swp
+*.swo
+
+# Ignore local testing configurations (if applicable)
+local.settings.json
+
+# Ignore specific server-related files (if applicable)
+server/node_modules/
+server/dist/
+server/build/
