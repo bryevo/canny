@@ -11,6 +11,10 @@
   },
   "rules": {
     // Add or override specific ESLint rules here, e.g.:
-    // "no-console": "warn"
+    "semi": ["error", "always"], // Enforce semicolons
+    "prefer-const": "error", // Prefer const for variables
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }], // Ignore unused variables starting with _
+    "@typescript-eslint/no-explicit-any": "warn", // Discourage `any` usage
+    "prettier/prettier": ["error"], // Ensure Prettier formatting is enforced
   },
 }

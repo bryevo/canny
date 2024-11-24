@@ -4,7 +4,7 @@ import { SECRET_KEY } from '..';
 
 const verifyOrRefreshJWT = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const jwtToken = req.headers['canny-access-token'] as string;
+    const jwtToken = req.headers['canny-jwt-token'] as string;
     const refreshToken = req.headers['canny-refresh-token'] as string;
     if (!jwtToken || !refreshToken) {
       res.status(401).send('Unable to find canny jwt token');
@@ -28,7 +28,7 @@ const verifyOrRefreshJWT = async (req: Request, res: Response, next: NextFunctio
         const updatedToken = jwt.sign({ userId: refreshPayload.userId }, SECRET_KEY, {
           expiresIn: '1h',
         });
-        res.setHeader('canny-access-token', updatedToken);
+        res.setHeader('canny-jwt-token', updatedToken);
         next();
       } catch {
         res.status(401).send('JWT and Refresh token expired');

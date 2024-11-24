@@ -10,7 +10,7 @@ import Security
 class AuthManager: ObservableObject {
     @Published var isLoggedIn: Bool = false
     init() {
-        isLoggedIn = AuthManager.loadFromKeychain(key: "jwtToken") != nil && AuthManager.loadFromKeychain(key: "refreshToken") != nil
+        isLoggedIn = AuthManager.loadFromKeychain(key: Keys.JWT_TOKEN) != nil && AuthManager.loadFromKeychain(key: Keys.REFRESH_TOKEN) != nil
     }
     struct GetAccessTokenResponse: Codable {
         let item_id: String
@@ -68,7 +68,7 @@ class AuthManager: ObservableObject {
     }
     
     static func login(email: String, password: String, completion: @escaping (UUID?) -> Void) {
-        let url = URL(string: "http://localhost:3000/login")!
+        let url = URL(string: Constants.API.Auth.LOGIN)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
@@ -107,13 +107,14 @@ class AuthManager: ObservableObject {
                 }
                 return
             }
-            
             do {
                 let responseData = try JSONDecoder().decode(LoginResponseData.self, from: data)
                 let jwt = responseData.token
                 let refreshToken = responseData.refreshToken
-                updateToKeychain(key: "jwtToken", token: jwt)
-                updateToKeychain(key: "refreshToken", token: refreshToken)
+                updateToKeychain(key: Keys.JWT_TOKEN, token: jwt)
+                updateToKeychain(key: Keys.REFRESH_TOKEN, token: refreshToken)
+                updateToKeychain(key: Keys.USER_ID, token: responseData.id.uuidString)
+                updateToKeychain(key: Keys.EMAIL, token: email)
                 completion(responseData.id)
             } catch {
                 DispatchQueue.main.async {
@@ -126,13 +127,13 @@ class AuthManager: ObservableObject {
     }
     
     static func logout(completion: @escaping (UUID?) -> Void) {
-        let url = URL(string: "http://localhost:3000/logout")!
+        let url = URL(string: Constants.API.Auth.LOGOUT)!
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = "GET"
         
         // Assuming you have login credentials to send
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(AuthManager.loadFromKeychain(key: "jwtToken"), forHTTPHeaderField: "canny-access-token")
+        request.setValue(AuthManager.loadFromKeychain(key: Keys.JWT_TOKEN), forHTTPHeaderField: Keys.JWT_TOKEN)
         request.setValue(UIDevice.current.identifierForVendor?.uuidString, forHTTPHeaderField: "device-id")
         
         URLSession.shared.dataTask(with: request) { data, response, error in
@@ -150,45 +151,12 @@ class AuthManager: ObservableObject {
                 }
                 return
             }
-            deleteFromKeychain(key: "jwtToken")
-            deleteFromKeychain(key: "refreshToken")
-            deleteFromKeychain(key: "plaid-access-tokens")
+            deleteFromKeychain(key: Keys.JWT_TOKEN)
+            deleteFromKeychain(key: Keys.REFRESH_TOKEN)
+            deleteFromKeychain(key: Keys.PLAID_ACCESS_TOKENS)
+            deleteFromKeychain(key: Keys.USER_ID)
+            deleteFromKeychain(key: Keys.EMAIL)
             completion(nil)
-        }.resume()
-    }
-    
-    // Use JWT for Authenticated Requests
-    static func makeAuthenticatedRequest() {
-        guard let token = loadFromKeychain(key: "jwtToken") else { return }
-        
-        var request = URLRequest(url: URL(string: "https://your-api-endpoint.com/protected")!)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            // Handle response
-        }.resume()
-    }
-    
-    // Refresh JWT
-    static func refreshJWT() {
-        guard let refreshToken = loadFromKeychain(key: "refreshToken") else { return }
-        
-        var request = URLRequest(url: URL(string: "https://your-api-endpoint.com/refresh")!)
-        request.httpMethod = "POST"
-        
-        // Assuming refresh token needs to be sent in the body
-        let body = ["refresh_token": refreshToken]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let data = data,
-               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let newJwt = json["token"] as? String {
-                DispatchQueue.main.async {
-                    updateToKeychain(key: "jwtToken",token: newJwt)
-                }
-            }
         }.resume()
     }
 }

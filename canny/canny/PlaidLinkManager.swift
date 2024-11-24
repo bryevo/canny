@@ -43,28 +43,30 @@ class PlaidLinkManager: ObservableObject {
     @MainActor
     func generateLinkToken() async -> (String?, Error?) {
         // Set the URL
-        guard let url = URL(string: "http://localhost:3000/get-link-token") else {
+        guard let url = URL(string: PlaidAPI.GET_LINK_TOKEN) else {
             return (nil, NSError(domain: "Invalid URL", code: 400, userInfo: nil))
         }
-        
+        if (AuthManager.loadFromKeychain(key: Keys.USER_ID) == nil || AuthManager.loadFromKeychain(key: Keys.EMAIL) == nil) {
+            return (nil, NSError(domain: "Unable to get user information", code: 401, userInfo: nil))
+        }
         // Prepare the request body
         let body: [String: String] = [
-            "id": "1053c9e0-261f-4ce4-8e78-2f816e2dd22d",
-            "email": "ovnairb@gmail.com"
+            "id": AuthManager.loadFromKeychain(key: Keys.USER_ID)!,
+            "email": AuthManager.loadFromKeychain(key: Keys.EMAIL)!
         ]
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(AuthManager.loadFromKeychain(key: "jwtToken"), forHTTPHeaderField: "canny-access-token")
-        request.setValue(AuthManager.loadFromKeychain(key: "refreshToken"), forHTTPHeaderField: "canny-refresh-token")
+        request.setValue(AuthManager.loadFromKeychain(key: Keys.JWT_TOKEN), forHTTPHeaderField: Keys.JWT_TOKEN)
+        request.setValue(AuthManager.loadFromKeychain(key: Keys.REFRESH_TOKEN), forHTTPHeaderField: Keys.REFRESH_TOKEN)
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             if let httpResponse = response as? HTTPURLResponse {
                 // Access the response headers
-                if let updatedJwtToken = httpResponse.allHeaderFields["canny-access-token"] as? String {
-                    AuthManager.updateToKeychain(key: "jwtToken", token: updatedJwtToken)
+                if let updatedJwtToken = httpResponse.allHeaderFields[Keys.JWT_TOKEN] as? String {
+                    AuthManager.updateToKeychain(key: Keys.JWT_TOKEN, token: updatedJwtToken)
                 }
             }
             // Convert data to string
@@ -87,7 +89,7 @@ class PlaidLinkManager: ObservableObject {
                 Task { @MainActor in
                     // Make asynchronous calls here
                     self.accessToken = await self.getAccessToken(publicToken: success.publicToken) ?? ""
-                    let accessTokensKeyChain = AuthManager.loadFromKeychain(key: "plaid-access-tokens")
+                    let accessTokensKeyChain = AuthManager.loadFromKeychain(key: Keys.PLAID_ACCESS_TOKENS)
                     var accessTokens: [String] = []
                     if let accessTokensKeyChain {
                         accessTokens = try JSONDecoder().decode([String].self, from: Data(accessTokensKeyChain.utf8))
@@ -95,7 +97,7 @@ class PlaidLinkManager: ObservableObject {
                             accessTokens.append(self.accessToken)
                         }
                     }
-                    AuthManager.updateToKeychain(key: "plaid-access-tokens", token: jsonStringify(accessTokens)!)
+                    AuthManager.updateToKeychain(key: Keys.PLAID_ACCESS_TOKENS, token: jsonStringify(accessTokens)!)
                     self.isPresentingLink = false
                 }
             }
@@ -129,15 +131,15 @@ class PlaidLinkManager: ObservableObject {
     
     private func getAccessToken(publicToken: String) async -> String? {
         // Define the URL for the request
-        guard let url = URL(string: "http://localhost:3000/exchange-public-for-access-token") else {
+        guard let url = URL(string: PlaidAPI.EXCHANGE_PUBLIC_FOR_ACCESS_TOKEN) else {
             return nil
         }
         
         // Create a URLRequest with headers
         var request = URLRequest(url: url)
-        request.setValue(publicToken, forHTTPHeaderField: "plaid-public-token")
-        request.setValue(AuthManager.loadFromKeychain(key: "jwtToken"), forHTTPHeaderField: "canny-access-token")
-        request.setValue(AuthManager.loadFromKeychain(key: "refreshToken"), forHTTPHeaderField: "canny-refresh-token")
+        request.setValue(publicToken, forHTTPHeaderField: Constants.Headers.PLAID_PUBLIC_TOKEN)
+        request.setValue(AuthManager.loadFromKeychain(key: Keys.JWT_TOKEN), forHTTPHeaderField: Keys.JWT_TOKEN)
+        request.setValue(AuthManager.loadFromKeychain(key: Keys.REFRESH_TOKEN), forHTTPHeaderField: Keys.REFRESH_TOKEN)
         
         // Use URLSession to make the request
         do {

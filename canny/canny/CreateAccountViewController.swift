@@ -80,7 +80,7 @@ struct CreateAccountView: View {
             return
         }
 
-        guard let url = URL(string: "http://localhost:3000/create-account") else {
+        guard let url = URL(string: Constants.API.Auth.CREATE_ACCOUNT) else {
             alertMessage = "Invalid URL."
             showingAlert = true
             return

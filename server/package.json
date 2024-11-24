@@ -7,7 +7,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "prepare": "cd .. && husky install server/.husky"
   },
