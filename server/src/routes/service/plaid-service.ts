@@ -99,13 +99,15 @@ export const getAccountSummary = async (req: Request, res: Response) => {
       accountGetPromises.push(plaidClient.accountsGet({ access_token }));
     });
     const responses = await Promise.all(accountGetPromises);
-    const accounts: { [key: string]: AccountBase } = {};
+    const accounts: { [key: string]: AccountBase[] } = {};
     responses.forEach((response) => {
       response.data.accounts.forEach((account) => {
-        accounts[account.account_id] = account;
+        if (!accounts[account.type]) {
+          accounts[account.type] = [];
+        }
+        accounts[account.type].push(account);
       });
     });
-    console.log(accounts);
     res.status(200).send(accounts);
   } catch (err) {
     console.error(err);

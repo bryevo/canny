@@ -9,22 +9,50 @@ import SwiftUI
 
 struct DashboardView: View {
   @EnvironmentObject var authViewModel: AuthManager
-  @State private var accounts: [String: Plaid.AccountBase] = [:]
+  @State private var accountTotal: Double = 0
+  @State private var accounts: [PlaidAccountType: [PlaidAccount.AccountBase]] = [:]
 
   var body: some View {
     VStack(spacing: 20) {
-      // Iterate through the dictionary
-      ForEach(accounts.map(\.value), id: \.account_id) { account in
-        VStack(alignment: .leading) {
-          Text("Name: \(account.official_name ?? account.name)").font(.system(size: 17, weight: .medium))
-
-          Text("Available Balance: \(account.balances.available ?? 0, specifier: "%.2f")")
-            .font(.system(size: 17, weight: .medium))
-
-          Text("Current Balance: \(account.balances.current ?? 0, specifier: "%.2f")")
-            .font(.system(size: 17, weight: .medium))
-        }
-      }.padding()
+      Text("Net Worth: $\(accountTotal, specifier: "%.2f")")
+        .font(.title)
+        .fontWeight(.bold)
+      if accounts[PlaidAccountType.depository] != nil {
+        AccordionView(
+          title: "Bank Accounts",
+          cards: accounts[.depository]?.map { account in
+            CardView(
+              name: account.officialName ?? account.name,
+              balance: account.balances.current,
+              currencyCode: account.balances.isoCurrencyCode
+            )
+          } ?? []
+        )
+      }
+      if accounts[PlaidAccountType.credit] != nil {
+        AccordionView(
+          title: "Credit Cards",
+          cards: accounts[.credit]?.map { account in
+            CardView(
+              name: account.officialName ?? account.name,
+              balance: account.balances.current,
+              currencyCode: account.balances.isoCurrencyCode
+            )
+          } ?? []
+        )
+      }
+      if accounts[PlaidAccountType.investment] != nil {
+        AccordionView(
+          title: "Investments",
+          cards: accounts[.investment]?.map { account in
+            CardView(
+              name: account.officialName ?? account.name,
+              balance: account.balances.current,
+              currencyCode: account.balances.isoCurrencyCode
+            )
+          } ?? []
+        )
+      }
       NavigationLink("Add new account", destination: PlaidContentView()).padding()
       Button(action: logout, label: {
         Text("Logout")
@@ -47,24 +75,6 @@ struct DashboardView: View {
     }
   }
 
-  struct Plaid: Codable {
-    struct AccountBase: Codable {
-      let account_id: String
-      let balances: Plaid.AccountBalance
-      let name: String
-      let official_name: String?
-      let subtype: String
-      let type: String
-    }
-
-    struct AccountBalance: Codable {
-      let available: Double?
-      let current: Double?
-      let iso_currency_code: String
-      let limit: Double?
-    }
-  }
-
   private func loadAccountSummary() {
     print("Loading Account Summary...")
     Task { @MainActor in
@@ -76,7 +86,21 @@ struct DashboardView: View {
         accessTokens = await getAccessTokens() ?? []
       }
       if let accountSummmaryResponse = await getAccountSummary(accessTokens: accessTokens) {
-        accounts = accountSummmaryResponse
+        accountTotal = 0
+        for (key, accs) in accountSummmaryResponse {
+          if let accountType = PlaidAccountType(rawValue: key) {
+            accounts[accountType] = accs
+            if key != PlaidAccountType.credit.rawValue {
+              accountTotal += accs.reduce(0.0) { partialSum, account in
+                partialSum + account.balances.current
+              }
+            } else {
+              accountTotal -= accs.reduce(0.0) { partialSum, account in
+                partialSum + account.balances.current
+              }
+            }
+          }
+        }
         print("Account summary loaded")
       }
     }
@@ -115,7 +139,7 @@ struct DashboardView: View {
     }
   }
 
-  private func getAccountSummary(accessTokens: [String]) async -> [String: Plaid.AccountBase]? {
+  private func getAccountSummary(accessTokens: [String]) async -> [String: [PlaidAccount.AccountBase]]? {
     // Define the URL for the request
     guard let url = URL(string: Constants.API.Plaid.GET_ACCOUNT_SUMMARY) else {
       return nil
@@ -139,7 +163,7 @@ struct DashboardView: View {
         return nil
       }
       // Return the response data as a string
-      return try JSONDecoder().decode([String: Plaid.AccountBase].self, from: data)
+      return try JSONDecoder().decode([String: [PlaidAccount.AccountBase]].self, from: data)
     } catch {
       // Handle any errors
       print("Error making request: \(error)")
