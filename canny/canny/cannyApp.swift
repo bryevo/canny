@@ -8,18 +8,18 @@
 import SwiftUI
 
 @main
-struct cannyApp: App {
-    @StateObject var authViewModel = AuthManager()
-    
-    var body: some Scene {
-        WindowGroup {
-            NavigationStack {
-                VStack {
-                    //                    CreateAccountView()
-                    //                    LoginAccountView()
-                    HomeView()
-                }
-            }.environmentObject(authViewModel)
+struct CannyApp: App {
+  @StateObject var authViewModel = AuthManager()
+
+  var body: some Scene {
+    WindowGroup {
+      NavigationStack {
+        VStack {
+          //                    CreateAccountView()
+          //                    LoginAccountView()
+          HomeView()
         }
+      }.environmentObject(authViewModel)
     }
+  }
 }

@@ -62,6 +62,7 @@
 				41E17B782CC4BDBD0091B930 /* Sources */,
 				41E17B792CC4BDBD0091B930 /* Frameworks */,
 				41E17B7A2CC4BDBD0091B930 /* Resources */,
+				410CAD6E2CF4252A009C9D67 /* SwiftFormat */,
 			);
 			buildRules = (
 			);
@@ -126,6 +127,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		410CAD6E2CF4252A009C9D67 /* SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftFormat;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"/opt/homebrew/bin:$PATH\"\nif which swiftformat > /dev/null; then\n  swiftformat .\nelse\n  echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		41E17B782CC4BDBD0091B930 /* Sources */ = {
@@ -267,6 +289,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"canny/Preview Content\"";
 				DEVELOPMENT_TEAM = H4ECXMQC9V;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -296,6 +319,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"canny/Preview Content\"";
 				DEVELOPMENT_TEAM = H4ECXMQC9V;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
