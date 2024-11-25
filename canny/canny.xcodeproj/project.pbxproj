@@ -67,6 +67,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				410CAE052CF42D0A009C9D67 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				41E17B7E2CC4BDBD0091B930 /* canny */,
@@ -107,6 +108,7 @@
 			packageReferences = (
 				41E17B8F2CC4C0890091B930 /* XCRemoteSwiftPackageReference "iPhoneNumberField" */,
 				41E17B922CC4C2D20091B930 /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */,
+				410CAE032CF42CF8009C9D67 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 41E17B7D2CC4BDBD0091B930 /* Products */;
@@ -158,6 +160,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		410CAE052CF42D0A009C9D67 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 410CAE042CF42D0A009C9D67 /* SwiftLintBuildToolPlugin */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		41E17B882CC4BDBF0091B930 /* Debug */ = {
@@ -363,6 +372,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		410CAE032CF42CF8009C9D67 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.57.1;
+			};
+		};
 		41E17B8F2CC4C0890091B930 /* XCRemoteSwiftPackageReference "iPhoneNumberField" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MojtabaHs/iPhoneNumberField.git";
@@ -382,6 +399,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		410CAE042CF42D0A009C9D67 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 410CAE032CF42CF8009C9D67 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		41E17B902CC4C0890091B930 /* iPhoneNumberField */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 41E17B8F2CC4C0890091B930 /* XCRemoteSwiftPackageReference "iPhoneNumberField" */;

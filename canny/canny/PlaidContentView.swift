@@ -49,8 +49,8 @@ struct PlaidContentView: View {
       isPresented: $isPresentingLink,
       onDismiss: { isPresentingLink = false },
       content: {
-        if let lc = linkManager.linkController {
-          lc.ignoresSafeArea(.all)
+        if let linkController = linkManager.linkController {
+          linkController.ignoresSafeArea(.all)
         } else {
           Text("Error: LinkController not initialized")
         }

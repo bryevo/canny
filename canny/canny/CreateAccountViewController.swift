@@ -72,30 +72,25 @@ struct CreateAccountView: View {
       showingAlert = true
       return
     }
-
     guard password == verifyPassword else {
       alertMessage = "Passwords do not match."
       showingAlert = true
       return
     }
-
     guard let url = URL(string: Constants.API.Auth.CREATE_ACCOUNT) else {
       alertMessage = "Invalid URL."
       showingAlert = true
       return
     }
-
-    let parameters: [String: Any] = [
+    let parameters: [String: String] = [
       "fullName": fullName,
       "email": email,
       "phoneNumber": phoneNumber,
       "password": password
     ]
-
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
     do {
       request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
     } catch {
@@ -103,7 +98,6 @@ struct CreateAccountView: View {
       showingAlert = true
       return
     }
-
     URLSession.shared.dataTask(with: request) { _, response, error in
       if let error {
         DispatchQueue.main.async {
@@ -112,7 +106,6 @@ struct CreateAccountView: View {
         }
         return
       }
-
       if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
         DispatchQueue.main.async {
           alertMessage = "Invalid response code: \(httpResponse.statusCode)"
@@ -120,12 +113,8 @@ struct CreateAccountView: View {
         }
         return
       }
-
-      DispatchQueue.main.async {
-        alertMessage = "Account created successfully!"
-        showingAlert = true
-      }
-
+      alertMessage = "Account created successfully!"
+      showingAlert = true
     }.resume()
   }
 }
